@@ -1,0 +1,79 @@
+The instructions you provided explain how to create a Squid indexer from an ABI and configure it using Squid Generation Tools. Below is an example configuration for creating a Squid indexer that indexes events from a single Ethereum smart contract and serves the indexed data via a GraphQL API.
+
+*Step 1: Create a New Squid*
+
+To create a new Squid using an ABI template, use the `sqd init` command with the appropriate template for your contract type (EVM/Solidity or WASM/ink!). Replace `my-squid` with your desired project name.
+
+For EVM/Solidity contracts:
+
+bash
+sqd init my-squid -t abi
+
+
+For WASM/ink! contracts:
+
+bash
+sqd init my-squid -t https://github.com/subsquid-labs/squid-ink-abi-template
+
+
+*Step 2: Install Dependencies*
+
+Navigate to the Squid project folder and install the required dependencies using npm:
+
+bash
+cd my-squid
+npm install
+
+
+*Step 3: Configure Squid*
+
+Write the configuration for your Squid in a `squidgen.yaml` file. This file will specify the archive, target, and contract details for your Squid. Here's a basic example for an EVM/Solidity contract:
+
+yaml
+archive: eth-mainnet
+target:
+  type: postgres  # or 'parquet' for file-based storage
+contracts:
+  - name: my-contract
+    address: "0xYourContractAddress"
+    abi: ./abi/your-contract-abi.json
+    events: true  # Index all events defined in the ABI
+
+
+In this example, replace `my-contract`, `"0xYourContractAddress"`, and `./abi/your-contract-abi.json` with the appropriate contract details.
+
+*Step 4: Generate Squid Code*
+
+Generate the Squid code using the `squid-gen` command:
+
+bash
+npx squid-gen config squidgen.yaml
+
+
+*Step 5: Prepare for Launch*
+
+If your Squid uses a PostgreSQL database, you can start a PostgreSQL container and generate migrations:
+
+bash
+sqd up
+sqd migration:generate
+
+
+If your Squid stores data to a file-based dataset, remove unnecessary database-related facilities from the project folder.
+
+*Step 6: Test the Squid Locally*
+
+You can test your Squid locally by running the processor and GraphQL server:
+
+bash
+sqd process
+sqd serve
+
+
+Visit the local GraphQL playground or connect to the database to verify that the Squid is saving the data as expected.
+
+*Step 7: Submission*
+
+Once your Squid is ready, you can submit it by creating a GitHub repository containing your code and GraphQL API. Make sure to include clear instructions on how to set up and use your Squid.
+
+Please note that this example provides a basic configuration for creating a Squid indexer from an ABI. Depending on your specific project requirements, you may need to customize the configuration, handle security aspects, and optimize performance.
